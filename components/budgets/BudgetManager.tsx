@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { TRANSACTION_CATEGORIES, getCategoryColor } from "@/lib/categories";
+import { TRANSACTION_CATEGORIES, getCategoryColor, CategoryType } from "@/lib/categories";
 
 interface Budget {
   _id: string;
@@ -219,7 +219,7 @@ export function BudgetManager({ budgets, onBudgetChange, categorySpending }: Bud
                     value={Math.min(utilization, 100)} 
                     className="h-2"
                     style={{
-                      backgroundColor: getCategoryColor(budget.category as any) + "20",
+                      backgroundColor: getCategoryColor(budget.category as CategoryType) + "20",
                     }}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">

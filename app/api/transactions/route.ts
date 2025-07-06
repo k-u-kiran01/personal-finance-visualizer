@@ -1,52 +1,116 @@
+import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/dbconnect";
 import { Transaction } from "@/models/transactions";
 
-export const GET = async () => {
-  await connectDB();
-  const transactions = await Transaction.find();
-  return new Response(JSON.stringify(transactions));
-};
-
-export const POST = async (req: Request) => {
-  await connectDB();
-  const { amount, date, description, category, type } = await req.json();
-  const dateObj = new Date(date);
-  const transaction = await Transaction.create({ 
-    amount, 
-    date: dateObj, 
-    description, 
-    category: category || "other",
-    type: type || "expense"
-  });
-  return new Response(JSON.stringify(transaction));
-};
-
-export const DELETE = async (req: Request) => {
+export async function GET() {
+  try {
     await connectDB();
-    const { id } = await req.json();
-    
-    try {
-        await Transaction.findByIdAndDelete(id);
-        return new Response(JSON.stringify({ message: "Transaction deleted" }));
-    } catch (error) {
-        return new Response(JSON.stringify({ message: "Transaction not found" }), { status: 404 });
-    }
-};
+    const transactions = await Transaction.find({}).sort({ date: -1 });
+    return NextResponse.json(transactions);
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch transactions" }, { status: 500 });
+  }
+}
 
-export const PUT = async (req: Request) => {
-    await connectDB();
-    const { id, amount, date, description, category, type } = await req.json();
-    const dateObj = new Date(date);
-    try {
-        const updatedTransaction = await Transaction.findByIdAndUpdate(id, { 
-          amount, 
-          date: dateObj, 
-          description, 
-          category: category || "other",
-          type: type || "expense"
-        }, { new: true });
-        return new Response(JSON.stringify(updatedTransaction));
-    } catch (error) {
-        return new Response(JSON.stringify({ message: "Transaction not found" }), { status: 404 });
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { amount, date, description, category, type } = body;
+
+    if (!amount || !date || !description || !category || !type) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
-}; 
+
+    await connectDB();
+    const transaction = new Transaction({
+      amount: Number(amount),
+      date: new Date(date),
+      description,
+      category,
+      type,
+    });
+
+    const savedTransaction = await transaction.save();
+    return NextResponse.json(savedTransaction, { status: 201 });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to create transaction" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, amount, date, description, category, type } = body;
+
+    if (!id || !amount || !date || !description || !category || !type) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+      id,
+      {
+        amount: Number(amount),
+        date: new Date(date),
+        description,
+        category,
+        type,
+      },
+      { new: true }
+    );
+
+    if (!updatedTransaction) {
+      return NextResponse.json(
+        { error: "Transaction not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(updatedTransaction);
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to update transaction" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Transaction ID is required" },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+    const deletedTransaction = await Transaction.findByIdAndDelete(id);
+
+    if (!deletedTransaction) {
+      return NextResponse.json(
+        { error: "Transaction not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ message: "Transaction deleted successfully" });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to delete transaction" },
+      { status: 500 }
+    );
+  }
+} 

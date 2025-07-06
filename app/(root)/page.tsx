@@ -5,18 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MoreVertical } from "lucide-react";
 import { PieChart } from "@/components/dashboard/PieChart";
 import { DashboardCards } from "@/components/dashboard/DashboardCards";
 import { BudgetManager } from "@/components/budgets/BudgetManager";
-import { TRANSACTION_CATEGORIES, getCategoryColor, getCategoryIcon, getCategoryLabel, CategoryType } from "@/lib/categories";
+import { TRANSACTION_CATEGORIES } from "@/lib/categories";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { MonthlyBarChart } from "@/components/dashboard/MonthlyBarChart";
-
 
 interface Transaction {
   _id: string;
@@ -35,10 +33,6 @@ interface Budget {
   year: number;
 }
 
-function isCategoryType(category: string): category is CategoryType {
-  return TRANSACTION_CATEGORIES.some(cat => cat.value === category);
-}
-
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -53,7 +47,7 @@ export default function HomePage() {
     type: "expense" as "expense" | "income",
   });
 
-  const handleAddTransaction = async (newTransaction: any) => {
+  const handleAddTransaction = async (newTransaction: Transaction) => {
     setTransactions(prev => {
       const updated = [...prev, newTransaction];
       return updated;
@@ -149,18 +143,16 @@ export default function HomePage() {
       amount,
     }));
 
-    const result = {
+    return {
       totalExpenses,
       totalIncome,
       categoryData,
       pieChartData,
       categorySpending: categoryData
     };
-    
-    return result;
   }, [transactions]);
 
-  const { totalExpenses, totalIncome, categoryData, pieChartData, categorySpending } = dashboardData;
+  const { totalExpenses, totalIncome, pieChartData, categorySpending } = dashboardData;
 
   const fetchBudgets = async () => {
     try {
@@ -193,7 +185,6 @@ export default function HomePage() {
         const res = await fetch("/api/transactions");
         const data = await res.json();
         setTransactions(data);
-        // console.log("Fetched transactions:", data);
         await fetchBudgets();
         setIsLoading(false);
       } catch (error) {
