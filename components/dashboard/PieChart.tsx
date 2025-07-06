@@ -1,5 +1,5 @@
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { getCategoryColor, getCategoryLabel } from '@/lib/categories';
+import { getCategoryColor, getCategoryLabel, CategoryType } from '@/lib/categories';
 
 interface PieChartProps {
   data: Array<{
@@ -10,9 +10,9 @@ interface PieChartProps {
 
 export function PieChart({ data }: PieChartProps) {
   const chartData = data.map(item => ({
-    name: getCategoryLabel(item.category as any),
+    name: getCategoryLabel(item.category as CategoryType),
     value: item.amount,
-    color: getCategoryColor(item.category as any),
+    color: getCategoryColor(item.category as CategoryType),
   }));
 
   return (

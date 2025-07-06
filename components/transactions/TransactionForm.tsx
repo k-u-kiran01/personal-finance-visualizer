@@ -6,7 +6,16 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TRANSACTION_CATEGORIES } from "@/lib/categories";
 
-export function TransactionForm({ onAdd }: { onAdd: (tx: any) => void }) {
+interface Transaction {
+  _id: string;
+  amount: number;
+  date: string;
+  description: string;
+  category: string;
+  type: "expense" | "income";
+}
+
+export function TransactionForm({ onAdd }: { onAdd: (tx: Transaction) => void }) {
   const [form, setForm] = useState({
     amount: 0,
     date: "",
@@ -15,11 +24,11 @@ export function TransactionForm({ onAdd }: { onAdd: (tx: any) => void }) {
     type: "expense" as "expense" | "income",
   });
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.description || !form.amount || !form.date) return;
     const res = await fetch("/api/transactions", {
