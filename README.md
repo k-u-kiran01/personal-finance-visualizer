@@ -42,7 +42,7 @@ A modern, responsive web application for tracking personal finances, built with 
 3. **Configure environment variables:**
    - Create a `.env.local` file:
      ```env
-     MONGODB_URI=mongodb://localhost:27017/personal-finance-app
+     MONGODB_URI= <your-mongodb-connection>
      ```
 4. **Run the development server:**
    ```bash
@@ -55,8 +55,6 @@ A modern, responsive web application for tracking personal finances, built with 
 - Deploy easily to [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/).
 - Set your `MONGODB_URI` in the deployment environment variables.
 
-## 📊 Screenshots
-![Dashboard Screenshot](./screenshot-dashboard.png)
 
 ## ❗ Notes
 - **No authentication:** This app is for demo/personal use only. Do not use for sensitive data.
